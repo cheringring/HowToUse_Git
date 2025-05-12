@@ -1,18 +1,40 @@
+# sync_posts.py
 import feedparser
 import os
 import requests
 from datetime import datetime
 
-# Velog RSS 피드 URL 수정
+# Velog RSS 피드 URL
 VELOG_USERNAME = os.getenv('VELOG_USERNAME', 'cheringring')
-RSS_URL = f'https://velog.io/@{VELOG_USERNAME}/rss'  # 전체 RSS 피드를 가져온 후 필터링
+RSS_URL = f'https://velog.io/@{VELOG_USERNAME}/rss'
 
 def get_posts():
     print(f"Fetching posts from: {RSS_URL}")
     feed = feedparser.parse(RSS_URL)
-    # github 시리즈의 포스트만 필터링
-    github_posts = [post for post in feed.entries if 'github' in post.get('tags', [''])[0].lower()]
-    print(f"Found {len(github_posts)} posts in github series")
+    
+    # 전체 피드 정보 출력
+    print(f"Total posts found: {len(feed.entries)}")
+    
+    for entry in feed.entries:
+        print(f"\nPost title: {entry.title}")
+        print(f"Tags: {entry.get('tags', [])}")
+        print(f"Categories: {entry.get('categories', [])}")
+        print(f"Link: {entry.link}")
+        
+    # github 시리즈 포스트 필터링
+    github_posts = []
+    for post in feed.entries:
+        # 모든 가능한 메타데이터 확인
+        if hasattr(post, 'tags'):
+            print(f"Tags for {post.title}: {post.tags}")
+        if hasattr(post, 'categories'):
+            print(f"Categories for {post.title}: {post.categories}")
+        
+        # 시리즈 정보가 있는지 확인
+        if 'github' in post.link.lower():
+            github_posts.append(post)
+    
+    print(f"\nFound {len(github_posts)} posts in github series")
     return github_posts
 
 def save_post(post):
@@ -22,7 +44,6 @@ def save_post(post):
     content = f"""---
 title: {post.title}
 date: {post.published}
-series: github
 link: {post.link}
 ---
 
