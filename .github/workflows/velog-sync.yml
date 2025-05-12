@@ -1,4 +1,4 @@
-
+# .github/workflows/velog-sync.yml
 name: Sync Velog GitHub Series Posts
 
 on:
@@ -6,11 +6,17 @@ on:
     - cron: '0 */6 * * *'
   workflow_dispatch:
 
+# 권한 설정 추가
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # 토큰 추가
       
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -30,8 +36,8 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add posts/
           git commit -m "Update posts from Velog" || echo "No changes to commit"
           git push
