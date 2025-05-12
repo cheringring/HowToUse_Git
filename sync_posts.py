@@ -1,41 +1,67 @@
 # sync_posts.py
-import feedparser
 import os
 import requests
 import json
 from datetime import datetime
 
-# Velog API URL
+# Velog GraphQL API endpoint
 VELOG_USERNAME = os.getenv('VELOG_USERNAME', 'cheringring')
-API_URL = f'https://v2.velog.io/api/posts/@{VELOG_USERNAME}'
+API_URL = 'https://v2.velog.io/graphql'
 
 def get_posts():
-    print(f"Fetching posts from API: {API_URL}")
+    print(f"Fetching posts for user: {VELOG_USERNAME}")
+    
+    # GraphQL 쿼리
+    query = """
+    query Posts($username: String) {
+      posts(username: $username) {
+        id
+        title
+        url_slug
+        created_at
+        series {
+          name
+        }
+        short_description
+      }
+    }
+    """
     
     try:
-        # API 호출
-        response = requests.get(API_URL)
+        # GraphQL API 호출
+        response = requests.post(
+            API_URL,
+            json={
+                'query': query,
+                'variables': {'username': VELOG_USERNAME}
+            }
+        )
         print(f"Response status: {response.status_code}")
-        print(f"Response content: {response.text[:200]}...")  # 응답 내용 확인
+        print(f"Response content: {response.text[:200]}...")
         
         if response.status_code == 200:
-            posts_data = response.json()
-            # github 시리즈 포스트 필터링
-            github_posts = [
-                post for post in posts_data
-                if 'series' in post and post['series'] and 'github' in post['series'].lower()
-            ]
-            
-            for post in github_posts:
-                print(f"Found post: {post['title']}")
-            
-            return github_posts
+            data = response.json()
+            if 'data' in data and 'posts' in data['data']:
+                # github 시리즈 포스트 필터링
+                github_posts = [
+                    post for post in data['data']['posts']
+                    if post.get('series') and post['series'].get('name', '').lower() == 'github'
+                ]
+                
+                for post in github_posts:
+                    print(f"Found post: {post['title']}")
+                
+                return github_posts
+            else:
+                print("No posts data in response")
+                return []
         else:
             print(f"API request failed with status: {response.status_code}")
             return []
             
     except Exception as e:
         print(f"Error fetching posts: {e}")
+        print(f"Full error: {str(e)}")
         return []
 
 def save_post(post):
@@ -44,9 +70,9 @@ def save_post(post):
     
     content = f"""---
 title: {post['title']}
-date: {post.get('created_at', '')}
+date: {post['created_at']}
 series: github
-link: https://velog.io/@{VELOG_USERNAME}/{post.get('url_slug', '')}
+link: https://velog.io/@{VELOG_USERNAME}/{post['url_slug']}
 ---
 
 {post.get('short_description', '')}
