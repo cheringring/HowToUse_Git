@@ -1,4 +1,4 @@
-# .github/workflows/velog-sync.yml
+
 name: Sync Velog GitHub Series Posts
 
 on:
@@ -20,10 +20,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install feedparser markdown requests beautifulsoup4
+          pip install requests
           
       - name: Sync Posts
         run: python sync_posts.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VELOG_USERNAME: "cheringring"
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add posts/
+          git commit -m "Update posts from Velog" || echo "No changes to commit"
+          git push
