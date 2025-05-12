@@ -65,7 +65,8 @@ def get_posts():
         return []
 
 def save_post(post):
-    filename = f"posts/{clean_filename(post['title'])}.md"
+    # url_slug를 사용하여 파일명 생성
+    filename = f"posts/{post['url_slug']}.md"
     print(f"Saving post: {post['title']} to {filename}")
     
     # 메타데이터와 본문 내용을 포함한 마크다운 파일 생성
@@ -88,14 +89,6 @@ link: https://velog.io/@{VELOG_USERNAME}/{post['url_slug']}
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(content)
     print(f"Saved post: {filename}")
-
-def clean_filename(title):
-    # 파일명에서 사용할 수 없는 문자들 처리
-    invalid_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|', '\n']
-    filename = title
-    for char in invalid_chars:
-        filename = filename.replace(char, '-')
-    return filename.strip()
 
 def main():
     print("Starting sync process...")
