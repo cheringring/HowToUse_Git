@@ -3,51 +3,56 @@ import feedparser
 import os
 import requests
 from datetime import datetime
+from bs4 import BeautifulSoup
 
-# Velog RSS 피드 URL
+# Velog 시리즈 URL
 VELOG_USERNAME = os.getenv('VELOG_USERNAME', 'cheringring')
-RSS_URL = f'https://velog.io/@{VELOG_USERNAME}/rss'
+SERIES_URL = f'https://velog.io/@{VELOG_USERNAME}/series/github'
 
 def get_posts():
-    print(f"Fetching posts from: {RSS_URL}")
-    feed = feedparser.parse(RSS_URL)
+    print(f"Fetching posts from series: {SERIES_URL}")
     
-    # 전체 피드 정보 출력
-    print(f"Total posts found: {len(feed.entries)}")
-    
-    for entry in feed.entries:
-        print(f"\nPost title: {entry.title}")
-        print(f"Tags: {entry.get('tags', [])}")
-        print(f"Categories: {entry.get('categories', [])}")
-        print(f"Link: {entry.link}")
+    try:
+        # 시리즈 페이지 가져오기
+        response = requests.get(SERIES_URL)
+        print(f"Response status: {response.status_code}")
         
-    # github 시리즈 포스트 필터링
-    github_posts = []
-    for post in feed.entries:
-        # 모든 가능한 메타데이터 확인
-        if hasattr(post, 'tags'):
-            print(f"Tags for {post.title}: {post.tags}")
-        if hasattr(post, 'categories'):
-            print(f"Categories for {post.title}: {post.categories}")
+        # HTML 파싱
+        soup = BeautifulSoup(response.text, 'html.parser')
         
-        # 시리즈 정보가 있는지 확인
-        if 'github' in post.link.lower():
-            github_posts.append(post)
-    
-    print(f"\nFound {len(github_posts)} posts in github series")
-    return github_posts
+        # 시리즈의 포스트 링크 찾기
+        posts = []
+        for article in soup.find_all('article'):
+            title = article.find('h2').text if article.find('h2') else ''
+            link = article.find('a')['href'] if article.find('a') else ''
+            date = article.find('div', {'class': 'date'}).text if article.find('div', {'class': 'date'}) else ''
+            
+            if title and link:
+                posts.append({
+                    'title': title,
+                    'link': f'https://velog.io{link}',
+                    'date': date
+                })
+                print(f"Found post: {title}")
+        
+        return posts
+        
+    except Exception as e:
+        print(f"Error fetching series: {e}")
+        return []
 
 def save_post(post):
-    filename = f"posts/{clean_filename(post.title)}.md"
-    print(f"Saving post: {post.title} to {filename}")
+    filename = f"posts/{clean_filename(post['title'])}.md"
+    print(f"Saving post: {post['title']} to {filename}")
     
     content = f"""---
-title: {post.title}
-date: {post.published}
-link: {post.link}
+title: {post['title']}
+date: {post['date']}
+link: {post['link']}
+series: github
 ---
 
-{post.description}
+[Original Post]({post['link']})
 """
     
     os.makedirs('posts', exist_ok=True)
@@ -62,6 +67,7 @@ def clean_filename(title):
 def main():
     print("Starting sync process...")
     posts = get_posts()
+    print(f"Found {len(posts)} posts in series")
     for post in posts:
         save_post(post)
     print("Sync complete!")
