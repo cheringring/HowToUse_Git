@@ -1,5 +1,5 @@
 ---
-title: Velog 포스트 자동 백업하기(특정 시리즈) - GitHub Actions로 구현하는 GraphQL API를 이용한 동기화 !
+title: Velog 포스트 자동 백업하기(특정 시리즈) - GitHub Actions로 구현하는 GraphQL API를 이용한 동기화 
 date: 2025-05-12T09:15:01.368Z
 series: github
 tags: GithubAction, Velog자동백업, rss동기화, veloggithub, 벨로그포스트깃허브에백업
@@ -61,13 +61,11 @@ mkdir -p .github/workflows
 #### 5. 특정 시리즈 동기화 스크립트 작성
 
 
-![](https://velog.velcdn.com/images/cheringring/post/bc4c8f3d-6980-441d-8cb7-230e73a33606/image.png)
-![](https://velog.velcdn.com/images/cheringring/post/970a34aa-0b7c-4a72-98f2-993c6eafcb69/image.png)
+![](https://velog.velcdn.com/images/cheringring/post/dc6f9e3a-d662-47ca-bc6b-3092e78dcb1c/image.png)
 
-![](https://velog.velcdn.com/images/cheringring/post/54200014-6d36-4953-a75a-494f636d1945/image.png)
+![](https://velog.velcdn.com/images/cheringring/post/545d5ff2-79a3-4e82-884e-358312dc4935/image.png)
 
-![](https://velog.velcdn.com/images/cheringring/post/6e121641-d8f6-4911-9c6c-57004185b538/image.png)
-
+![](https://velog.velcdn.com/images/cheringring/post/1b4866fa-2469-4027-8041-fa99e0feaf6a/image.png)
 
 
 
