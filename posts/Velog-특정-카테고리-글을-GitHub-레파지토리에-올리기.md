@@ -1,5 +1,5 @@
 ---
-title: Velog 포스트 자동 백업하기(특정 시리즈) - GitHub Actions로 구현하는 GraphQL API를 이용한 동기화
+title: Velog 포스트 자동 백업하기(특정 시리즈) - GitHub Actions로 구현하는 GraphQL API를 이용한 동기화 !
 date: 2025-05-12T09:15:01.368Z
 series: github
 tags: GithubAction, Velog자동백업, rss동기화, veloggithub, 벨로그포스트깃허브에백업
