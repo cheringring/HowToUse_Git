@@ -11,7 +11,7 @@ API_URL = 'https://v2.velog.io/graphql'
 def get_posts():
     print(f"Fetching posts for user: {VELOG_USERNAME}")
     
-    # GraphQL 쿼리
+    # GraphQL 쿼리 수정 - body 내용 추가
     query = """
     query Posts($username: String) {
       posts(username: $username) {
@@ -19,16 +19,17 @@ def get_posts():
         title
         url_slug
         created_at
+        body
         series {
           name
         }
+        tags
         short_description
       }
     }
     """
     
     try:
-        # GraphQL API 호출
         response = requests.post(
             API_URL,
             json={
@@ -37,7 +38,6 @@ def get_posts():
             }
         )
         print(f"Response status: {response.status_code}")
-        print(f"Response content: {response.text[:200]}...")
         
         if response.status_code == 200:
             data = response.json()
@@ -68,14 +68,19 @@ def save_post(post):
     filename = f"posts/{clean_filename(post['title'])}.md"
     print(f"Saving post: {post['title']} to {filename}")
     
+    # 메타데이터와 본문 내용을 포함한 마크다운 파일 생성
     content = f"""---
 title: {post['title']}
 date: {post['created_at']}
 series: github
+tags: {', '.join(post.get('tags', []))}
 link: https://velog.io/@{VELOG_USERNAME}/{post['url_slug']}
 ---
 
-{post.get('short_description', '')}
+{post.get('body', '')}
+
+---
+원본 포스트: https://velog.io/@{VELOG_USERNAME}/{post['url_slug']}
 """
     
     os.makedirs('posts', exist_ok=True)
@@ -85,7 +90,12 @@ link: https://velog.io/@{VELOG_USERNAME}/{post['url_slug']}
     print(f"Saved post: {filename}")
 
 def clean_filename(title):
-    return title.replace('/', '-').replace('\\', '-')
+    # 파일명에서 사용할 수 없는 문자들 처리
+    invalid_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|', '\n']
+    filename = title
+    for char in invalid_chars:
+        filename = filename.replace(char, '-')
+    return filename.strip()
 
 def main():
     print("Starting sync process...")
