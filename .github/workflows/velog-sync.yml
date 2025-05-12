@@ -1,4 +1,3 @@
-# .github/workflows/velog-sync.yml
 name: Sync Velog GitHub Series Posts
 
 on:
