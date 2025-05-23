@@ -1,5 +1,5 @@
 # HowToUse_Git
-GitHub 사용법에 대해 Velog에 정리한 걸 GitHub Actions+GraphQL API를 이용한 동기화를 활용해 업로드합니다.
+GitHub 사용법에 대해 Velog에 정리한 걸 GitHub Actions+GraphQL API를 이용한 동기화를 활용해 업로드합니다.<br>
 자세한 내용은 오른쪽에 링크된 제 velog를 통해 설명하였습니다.
 
 ## 구현 기능
